@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Code Snippet Sharing</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4 text-white">
+      <div class="container mx-auto flex justify-between">
+        <a href="/" class="text-xl font-bold">Code Snippet Sharing</a>
+        <div>
+          <a href="/snippets" class="mx-2 hover:text-blue-200">My Snippets</a>
+          <a href="/snippets/new" class="mx-2 hover:text-blue-200"
+            >Create Snippet</a
+          >
+          <a href="/logout" class="mx-2 hover:text-blue-200">Logout</a>
+        </div>
+      </div>
+    </nav>
+    <div class="container mx-auto mt-8">{{template "content" .}}</div>
+  </body>
+</html>

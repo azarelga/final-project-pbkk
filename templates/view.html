@@ -1,0 +1,37 @@
+{{define "content"}}
+<div class="bg-white p-8 rounded shadow-md">
+  <h1 class="text-3xl font-bold mb-4">{{.Title}}</h1>
+  <div class="mb-4">
+    <span class="font-semibold">Language:</span> {{.Language}}
+  </div>
+  <div class="mb-4">
+    <span class="font-semibold">Created:</span> {{.CreatedAt.Format "January 2, 2006 at 3:04 PM"}}
+  </div>
+  <div class="mb-4">
+    <h2 class="font-semibold">Description:</h2>
+    <p>{{.Description}}</p>
+  </div>
+  <div class="mb-4">
+    <h2 class="font-semibold mb-2">Code:</h2>
+    <pre
+      class="bg-gray-100 p-4 rounded overflow-x-auto"
+    ><code>{{.Code}}</code></pre>
+  </div>
+  <div class="flex space-x-4">
+    <a
+      href="/snippets/{{.ID}}/edit"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      Edit Snippet
+    </a>
+    <form action="/snippets/{{.ID}}/delete" method="POST" class="inline">
+      <button
+        type="submit"
+        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Delete Snippet
+      </button>
+    </form>
+  </div>
+</div>
+{{end}}
