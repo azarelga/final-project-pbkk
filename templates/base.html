@@ -13,17 +13,12 @@
       <div class="container mx-auto flex justify-between">
         <a href="/" class="text-xl font-bold">Snippety</a>
         <div>
-          <a href="/snippets" class="mx-2 hover:text-blue-200">My Snippets</a>
-          <a href="/snippets/new" class="mx-2 hover:text-blue-200"
-            >Create Snippet</a
-          >
-          {{if .Username}}
-          <a class="mx-2 text-gray-200">Hello! {{.Username}}</a>
-          <a href="/logout" class="mx-2 hover:text-blue-200">Logout</a>
-          {{else}}
-          <a href="/login" class="mx-2 hover:text-blue-200">Login</a>
-          <a href="/register" class="mx-2 hover:text-blue-200">Register</a>
-          {{end}}
+            <a href="/snippets" class="mx-2 hover:text-blue-200">My Snippets</a>
+            <a href="/snippets/new" class="mx-2 hover:text-blue-200">Create Snippet</a>
+              <span class="mx-2">Welcome!</span>
+            <a href="/logout" class="mx-2 hover:text-blue-200">Logout</a>
+            <a href="/login" class="mx-2 hover:text-blue-200">Login</a>
+            <a href="/register" class="mx-2 hover:text-blue-200">Register</a>
         </div>
       </div>
     </nav>
