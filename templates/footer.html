@@ -1,0 +1,25 @@
+</div>
+  </body>
+<script>
+    function getAuthHeader() {
+        const token = localStorage.getItem('token');
+        return token ? {'Authorization': 'Bearer ' + token} : {};
+    }
+    
+    // Example API call with token
+    async function fetchSnippets() {
+        const response = await fetch('/snippets', {
+            headers: {
+                ...getAuthHeader(),
+            }
+        });
+        return response.json();
+    }
+    
+    // Logout function
+    function logout() {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+    }
+    </script>
+</html>

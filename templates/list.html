@@ -1,4 +1,4 @@
-{{define "content"}}
+{{template "header.html" .}}
 <h1 class="text-3xl font-bold mb-6">Code Snippets</h1>
 <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
   {{range .}}
@@ -17,4 +17,4 @@
   </div>
   {{end}}
 </div>
-{{end}}
+{{template "footer.html" .}}

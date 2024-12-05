@@ -1,5 +1,8 @@
-{{define "content"}}
+{{template "header.html" .}}
 <div class="text-center">
+  {{if .Error}}
+  <p class="text-red-500 text-lg">{{.Error}}</p>
+  {{end}}
   <h1 class="text-4xl font-bold mb-4">Welcome to Code Snippet Sharing</h1>
   <p class="text-xl mb-6">
     Share, save, and explore code snippets from developers around the world.
@@ -17,4 +20,4 @@
     Browse Snippets
   </a>
 </div>
-{{end}}
+{{template "footer.html" .}}

@@ -13,15 +13,16 @@
       <div class="container mx-auto flex justify-between">
         <a href="/" class="text-xl font-bold">Snippety</a>
         <div>
+            {{if getAuthHeader()}}
             <a href="/snippets" class="mx-2 hover:text-blue-200">My Snippets</a>
             <a href="/snippets/new" class="mx-2 hover:text-blue-200">Create Snippet</a>
               <span class="mx-2">Welcome!</span>
             <a href="/logout" class="mx-2 hover:text-blue-200">Logout</a>
+              {{else}}
             <a href="/login" class="mx-2 hover:text-blue-200">Login</a>
             <a href="/register" class="mx-2 hover:text-blue-200">Register</a>
+            {{end}}
         </div>
       </div>
     </nav>
-    <div class="container mx-auto mt-8">{{template "content" .}}</div>
-  </body>
-</html>
+    <div class="container mx-auto mt-8">

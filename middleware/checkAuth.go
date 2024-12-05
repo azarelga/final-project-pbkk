@@ -1,71 +1,38 @@
 package middleware
 
 import (
-	"fmt"
-	"snipetty.com/main/database"
-	"snipetty.com/main/repositories"
 	"net/http"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 func CheckAuth(c *gin.Context) {
+    if c.Request.URL.Path == "/login" || c.Request.URL.Path == "/register" {
+        c.Next()
+        return
+    }
 
-	authHeader := c.GetHeader("Authorization")
+    // Get token from cookie instead of header
+    token, err := c.Cookie("token")
+    if err != nil {
+        c.Redirect(http.StatusSeeOther, "/login")
+        c.Abort()
+        return
+    }
 
-	if authHeader == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
+    // Validate token
+    claims := jwt.MapClaims{}
+    _, err = jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+        return []byte(os.Getenv("SECRET")), nil
+    })
 
-	authToken := strings.Split(authHeader, " ")
-	if len(authToken) != 2 || authToken[0] != "Bearer" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
+    if err != nil {
+        c.Redirect(http.StatusSeeOther, "/login")
+        c.Abort()
+        return
+    }
 
-	tokenString := authToken[1]
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("SECRET")), nil
-	})
-	if err != nil || !token.Valid {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-		c.Abort()
-		return
-	}
-
-	if float64(time.Now().Unix()) > claims["exp"].(float64) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "token expired"})
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	var user repositories.User
-	database.GetDB().Where("ID=?", claims["id"]).Find(&user)
-
-	if user.ID == 0 {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	c.Set("currentUser", user)
-
-	c.Next()
-
+    c.Next()
 }

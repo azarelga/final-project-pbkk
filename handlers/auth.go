@@ -14,23 +14,19 @@ import (
 )
 
 func Home(c *gin.Context) {
-        c.HTML(http.StatusOK, "base.html", gin.H{
-            "content": "home.html",
-        })
+        c.HTML(http.StatusOK, "home.html", nil)
 }
 
 func CreateUser(c *gin.Context) {
     if c.Request.Method == http.MethodGet {
-        c.HTML(http.StatusOK, "base.html", gin.H{
-            "content": "register.html",
-        })
+        c.HTML(http.StatusOK, "register.html", nil)
         return
     }
 
 	var authInput repositories.AuthInput
 
-	if err := c.ShouldBindJSON(&authInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error reading json": err.Error()})
+	if err := c.ShouldBind(&authInput); err != nil {
+        c.HTML(http.StatusOK, "register.html", gin.H{"Error": err.Error()})
 		return
 	}
 
@@ -38,13 +34,13 @@ func CreateUser(c *gin.Context) {
 	database.GetDB().Where("username=?", authInput.Username).Find(&userFound)
 
 	if userFound.ID != 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "username already used"})
+        c.HTML(http.StatusOK, "register.html", gin.H{"Error": "Username already used"})
 		return
 	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(authInput.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error generating password": err.Error()})
+        c.HTML(http.StatusOK, "register.html", gin.H{"Error": "Failed to hash password"})
 		return
 	}
 
@@ -55,21 +51,19 @@ func CreateUser(c *gin.Context) {
 
 	database.GetDB().Create(&user)
 
-	c.JSON(http.StatusOK, gin.H{"data": user})
-
+	c.HTML(http.StatusOK, "login.html", gin.H{"Success": "User created successfully"})
 }
 
 func Login(c *gin.Context) {
     if c.Request.Method == http.MethodGet {
-        c.HTML(http.StatusOK, "base.html", gin.H{
-            "content": "login.html",
-        })
+        c.HTML(http.StatusOK, "login.html", nil)
         return
     }
 	var authInput repositories.AuthInput
 
-	if err := c.ShouldBindJSON(&authInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error reading json": err.Error()})
+	if err := c.ShouldBind(&authInput); err != nil {
+        c.HTML(http.StatusOK, "login.html", gin.H{"Error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
 
@@ -77,12 +71,14 @@ func Login(c *gin.Context) {
 	database.GetDB().Where("username=?", authInput.Username).Find(&userFound)
 	log.Println(userFound)
 	if userFound.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+        c.HTML(http.StatusOK, "login.html", gin.H{"Error": "Invalid username or password"})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid username or password"})
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(userFound.Password), []byte(authInput.Password)); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid password test"})
+        c.HTML(http.StatusOK, "login.html", gin.H{"Error": "Invalid username or password"})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid username or password"})
 		return
 	}
 
@@ -92,12 +88,22 @@ func Login(c *gin.Context) {
 	})
 
 	token, err := generateToken.SignedString([]byte(os.Getenv("SECRET")))
-
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to generate token"})
+        c.HTML(http.StatusOK, "login.html", gin.H{"Error": "Error generating token"})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Error generating token"})
 	}
+    // Set token in cookie
+	c.SetSameSite(http.SameSiteLaxMode)
+    c.SetCookie(
+        "Authorization",           // name
+        token,            // value
+        3600 * 24,       // max age (24 hours)
+        "",             // path
+        "",              // domain
+        false,           // secure
+        true,            // httpOnly
+    )
 
-	c.JSON(200, gin.H{
-		"token": token,
-	})
+    c.Redirect(http.StatusSeeOther, "/")
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }

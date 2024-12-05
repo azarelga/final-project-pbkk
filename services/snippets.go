@@ -1,6 +1,7 @@
 package services
 
 import (
+    "errors"
     "snipetty.com/main/repositories"
 )
 
@@ -13,21 +14,36 @@ func NewSnippetService(repo *repositories.SnippetRepository) *SnippetService {
 }
 
 func (s *SnippetService) CreateSnippet(input repositories.CreateSnippetRequest) error {
+    if s.repo == nil {
+        return errors.New("repository is nil")
+    }
     return s.repo.Create(&input)
 }
 
 func (s *SnippetService) GetAllSnippets() ([]repositories.Snippet,error) {
+    if s.repo == nil {
+        return nil, errors.New("repository is nil")
+    }
     return s.repo.FindAll()
 }
 
 func (s *SnippetService) GetSnippetByID(id string) (*repositories.Snippet, error) {
+    if s.repo == nil {
+        return nil, errors.New("repository is nil")
+    }
     return s.repo.FindByID(id)
 }
 
 func (s *SnippetService) UpdateSnippet(id string, input repositories.CreateSnippetRequest) (error) {
+    if s.repo == nil {
+        return errors.New("repository is nil")
+    }
     return s.repo.Update(id, &input)
 }
 
 func (s *SnippetService) DeleteSnippet(id string) error {
+    if s.repo == nil {
+        return errors.New("repository is nil")
+    }
     return s.repo.Delete(id)
 }

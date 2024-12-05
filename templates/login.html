@@ -1,4 +1,4 @@
-{{define "content"}}
+{{template "header.html" .}}
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="bg-white p-8 rounded shadow-md w-96">
     <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
@@ -24,6 +24,11 @@
           required
           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
         />
+        {{if .Error}}
+        <p 
+        class="bg-red-500 text-white font-italic text-sm py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >{{.Error}}</p>
+        {{end}}
       </div>
       <div class="flex items-center justify-between">
         <button
@@ -42,4 +47,4 @@
     </form>
   </div>
 </div>
-{{end}}
+{{template "footer.html" .}}

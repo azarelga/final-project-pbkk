@@ -2,6 +2,7 @@ package main
 
 import (
 	"gorm.io/gorm"
+    "html/template"
     "log"
 
     "snipetty.com/main/services"
@@ -18,6 +19,17 @@ var err error
 func init() {
     database.LoadEnvs()
     database.InitializeDatabaseLayer()
+    
+    // Check if tables exist first
+    if !database.TablesExist() {
+        log.Println("Tables do not exist. Running migrations...")
+        if err := database.Migrate(); err != nil {
+            log.Fatalf("Failed to migrate database: %v", err)
+        }
+        log.Println("Migrations completed successfully")
+    } else {
+        log.Println("Tables already exist. Skipping migrations")
+    }
 }
 
 func main() {
@@ -34,13 +46,27 @@ func main() {
     router := gin.Default()
     router.Use(gin.Logger())
 
+    // Setup func map for templates
+    router.SetFuncMap(template.FuncMap{
+        "isAuthenticated": func(c *gin.Context) bool {
+            auth, exists := c.Get("isAuthenticated")
+            if !exists {
+                return false
+            }
+            return auth.(bool)
+        },
+        "getUser": func(c *gin.Context) interface{} {
+            user, _ := c.Get("user")
+            return user
+        },
+    })
     // Load HTML templates
     router.LoadHTMLGlob("templates/*")
 
     // Auth routes
     auth := router.Group("/")
     {
-        auth.GET("", handlers.Home)
+        auth.GET("", middleware.CheckAuth, handlers.Home)
         auth.GET("/login", handlers.Login)
         auth.GET("/register", handlers.CreateUser)
         auth.POST("/login", handlers.Login)
@@ -50,12 +76,13 @@ func main() {
     // Snippet routes with AuthMiddleware
     v1 := router.Group("/snippets", middleware.CheckAuth)
     {
-        v1.POST("", snippetHandler.CreateSnippet)
         v1.GET("", snippetHandler.GetAllSnippets)
+        v1.POST("/new", snippetHandler.CreateSnippet)
         v1.GET("/:id", snippetHandler.GetSnippetByID)
-        v1.PUT("/:id", snippetHandler.UpdateSnippet)
-        v1.DELETE("/:id", snippetHandler.DeleteSnippet)
+        v1.PUT("/:id/edit", snippetHandler.UpdateSnippet)
+        v1.DELETE("/:id/delete", snippetHandler.DeleteSnippet)
     }
+
     // start server
     log.Println("starting server on :8080")
     if err := router.Run(":8080"); err != nil {
