@@ -106,3 +106,16 @@ func Login(c *gin.Context) {
 
     c.Redirect(http.StatusSeeOther, "/")
 }
+
+func Logout(c *gin.Context) {
+	c.SetCookie(
+		"Authorization",
+		"", // value
+		-1, // max age
+		"", // path
+		"", // domain
+		false, // secure
+		false, // httpOnly
+	)
+	c.Redirect(http.StatusSeeOther, "/")
+}

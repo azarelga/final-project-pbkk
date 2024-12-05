@@ -1,6 +1,8 @@
 package repositories
 
 import (
+    "log"
+    "fmt"
     "gorm.io/gorm"
 	"time"
 )
@@ -10,16 +12,17 @@ type Snippet struct {
     Title       string    `json:"title"`
     Content     string    `json:"content"`
     Language    string    `json:"language"`
-    Description    string    `json:"description"`
+    Description    string  `json:"description"`
     CreatedAt   time.Time `json:"created_at"`
     UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type CreateSnippetRequest struct {
-    Title       string `json:"title" binding:"required"`
-    Content     string `json:"content" binding:"required"`
-    Description string `json:"description" binding:"required"` 
-    Language    string `json:"language" binding:"required"`
+    Title       string `form:"title" binding:"required"`
+    Content     string `form:"content" binding:"required"`
+    Description string `form:"description" binding:"required"` 
+    Language    string `form:"language" binding:"required"`
+    Username    string `form:"username"`
 }
 
 type SnippetRepository struct {
@@ -30,12 +33,27 @@ func NewSnippetRepository(db *gorm.DB) *SnippetRepository {
     return &SnippetRepository{db: db}
 }
 
-func (r *SnippetRepository) Create(snippet *CreateSnippetRequest) (error) {
-    return r.db.Create(snippet).Error
+func (r *SnippetRepository) Create(snippet *CreateSnippetRequest) error {
+    // Get count of user's snippets to generate ID
+    var count int64
+    var username = snippet.Username
+    r.db.Model(&Snippet{}).Where("id LIKE ?", username + "-%").Count(&count)
+    
+    var new Snippet 
+    new.ID = fmt.Sprintf("%s-%d", username, count+1)
+    new.Title = snippet.Title
+    new.Content = snippet.Content
+    new.Description = snippet.Description
+    new.Language = snippet.Language
+    new.CreatedAt = time.Now()
+    new.UpdatedAt = time.Now()
+    
+    return r.db.Create(&new).Error
 }
 
 func (r *SnippetRepository) FindAll() ([]Snippet, error) {
     var snippets []Snippet
+    log.Println(r.db)
     err := r.db.Find(&snippets).Error
     return snippets, err
 }

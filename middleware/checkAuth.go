@@ -36,3 +36,17 @@ func CheckAuth(c *gin.Context) {
 
     c.Next()
 }
+
+func JwtClaims(c *gin.Context) jwt.MapClaims {
+    token, err := c.Cookie("token")
+    if err != nil {
+        c.Redirect(http.StatusSeeOther, "/login")
+        c.Abort()
+        return nil
+    }
+    claims := jwt.MapClaims{}
+    jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+        return []byte(os.Getenv("SECRET")), nil
+    })
+    return claims
+}

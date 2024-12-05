@@ -1,9 +1,11 @@
 package handlers
 
 import (
+    "log"
     "net/http"
     "github.com/gin-gonic/gin"
     "snipetty.com/main/services"
+    "snipetty.com/main/middleware"
     "snipetty.com/main/repositories"
 )
 
@@ -26,29 +28,32 @@ func (h *SnippetHandler) CreateSnippet(c *gin.Context) {
         c.HTML(http.StatusBadRequest, "create.html", gin.H{
             "Error": err.Error(),
         })
+        log.Println(snippet)
         return
     }
-    
+
+    claims := middleware.JwtClaims(c)
+    log.Println(claims)
+    snippet.Username = claims["username"].(string)
     if err := h.service.CreateSnippet(snippet); err != nil {
         c.HTML(http.StatusInternalServerError, "create.html", gin.H{
             "Error": err.Error(),
-            "snippet": snippet,
         })
         return
     }
     
-    c.Redirect(http.StatusSeeOther, "/snippets")
+    c.Redirect(http.StatusSeeOther, "/snippets/:id")
 }
 
 func (h *SnippetHandler) GetAllSnippets(c *gin.Context) {
     snippets, err := h.service.GetAllSnippets()
     if err != nil {
-        c.HTML(http.StatusInternalServerError, "snippets.html", gin.H{
+        c.HTML(http.StatusInternalServerError, "list.html", gin.H{
             "Error": err.Error(),
         })
         return
     }
-    c.HTML(http.StatusOK, "viewsnippet.html", gin.H{
+    c.HTML(http.StatusOK, "list.html", gin.H{
         "snippets": snippets,
     })
 }
@@ -68,7 +73,7 @@ func (h *SnippetHandler) GetSnippetByID(c *gin.Context) {
         })
         return
     }
-    c.HTML(http.StatusOK, "list.html", gin.H{
+    c.HTML(http.StatusOK, "viewsnippet.html", gin.H{
         "snippet": snippet,
     })
 }

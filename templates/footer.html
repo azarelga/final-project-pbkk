@@ -10,7 +10,6 @@
 
     const token = getCookie('Authorization');
     const isAuthenticated = !!token; // Convert token to boolean
-    console.log(token); // Outputs your token
     
     // Select elements
     const authenticatedLinks = document.getElementById('authenticated-links');
@@ -18,11 +17,9 @@
 
     // Show or hide based on authentication status
     if (isAuthenticated) {
-        console.log('Authenticated');
         authenticatedLinks.style.display = 'block';
         unauthenticatedLinks.style.display = 'none';
     } else {
-        console.log('Unauthenticated');
         authenticatedLinks.style.display = 'none';
         unauthenticatedLinks.style.display = 'block';
     }
