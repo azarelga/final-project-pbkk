@@ -101,9 +101,8 @@ func Login(c *gin.Context) {
         "",             // path
         "",              // domain
         false,           // secure
-        true,            // httpOnly
+        false,            // httpOnly
     )
 
     c.Redirect(http.StatusSeeOther, "/")
-	c.JSON(http.StatusOK, gin.H{"token": token})
 }

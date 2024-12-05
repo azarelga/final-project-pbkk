@@ -1,25 +1,30 @@
 </div>
   </body>
 <script>
-    function getAuthHeader() {
-        const token = localStorage.getItem('token');
-        return token ? {'Authorization': 'Bearer ' + token} : {};
+    const cookies = document.cookie;
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
     }
+
+    const token = getCookie('Authorization');
+    const isAuthenticated = !!token; // Convert token to boolean
+    console.log(token); // Outputs your token
     
-    // Example API call with token
-    async function fetchSnippets() {
-        const response = await fetch('/snippets', {
-            headers: {
-                ...getAuthHeader(),
-            }
-        });
-        return response.json();
-    }
-    
-    // Logout function
-    function logout() {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+    // Select elements
+    const authenticatedLinks = document.getElementById('authenticated-links');
+    const unauthenticatedLinks = document.getElementById('unauthenticated-links');
+
+    // Show or hide based on authentication status
+    if (isAuthenticated) {
+        console.log('Authenticated');
+        authenticatedLinks.style.display = 'block';
+        unauthenticatedLinks.style.display = 'none';
+    } else {
+        console.log('Unauthenticated');
+        authenticatedLinks.style.display = 'none';
+        unauthenticatedLinks.style.display = 'block';
     }
     </script>
 </html>
