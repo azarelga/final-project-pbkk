@@ -13,11 +13,12 @@ func NewSnippetService(repo *repositories.SnippetRepository) *SnippetService {
     return &SnippetService{repo: repo}
 }
 
-func (s *SnippetService) CreateSnippet(input repositories.CreateSnippetRequest) error {
+func (s *SnippetService) CreateSnippet(input *repositories.CreateSnippetRequest) (string, error) {
     if s.repo == nil {
-        return errors.New("repository is nil")
+        return "", errors.New("repository is nil")
     }
-    return s.repo.Create(&input)
+    id, err := s.repo.Create(input)
+    return id, err
 }
 
 func (s *SnippetService) GetAllSnippets() ([]repositories.Snippet,error) {
@@ -39,6 +40,13 @@ func (s *SnippetService) UpdateSnippet(id string, input repositories.CreateSnipp
         return errors.New("repository is nil")
     }
     return s.repo.Update(id, &input)
+}
+
+func (s *SnippetService) GetSnippetsByUserID(uid uint) ([]repositories.Snippet, error) {
+    if s.repo == nil {
+        return nil, errors.New("repository is nil")
+    }
+    return s.repo.FindByUserID(uid)
 }
 
 func (s *SnippetService) DeleteSnippet(id string) error {

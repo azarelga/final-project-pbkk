@@ -9,6 +9,8 @@ import (
 
 type Snippet struct {
     ID          string    `json:"id"`
+    UserID      uint      `json:"user_id"`              // Foreign key field
+    User        User      `gorm:"foreignKey:UserID"`    // Association
     Title       string    `json:"title"`
     Content     string    `json:"content"`
     Language    string    `json:"language"`
@@ -18,11 +20,11 @@ type Snippet struct {
 }
 
 type CreateSnippetRequest struct {
+    UID    string `form:"username"`
     Title       string `form:"title" binding:"required"`
     Content     string `form:"content" binding:"required"`
     Description string `form:"description" binding:"required"` 
     Language    string `form:"language" binding:"required"`
-    Username    string `form:"username"`
 }
 
 type SnippetRepository struct {
@@ -33,22 +35,38 @@ func NewSnippetRepository(db *gorm.DB) *SnippetRepository {
     return &SnippetRepository{db: db}
 }
 
-func (r *SnippetRepository) Create(snippet *CreateSnippetRequest) error {
+func (r *SnippetRepository) Create(snippet *CreateSnippetRequest) (string, error) {
     // Get count of user's snippets to generate ID
     var count int64
-    var username = snippet.Username
-    r.db.Model(&Snippet{}).Where("id LIKE ?", username + "-%").Count(&count)
-    
-    var new Snippet 
-    new.ID = fmt.Sprintf("%s-%d", username, count+1)
-    new.Title = snippet.Title
-    new.Content = snippet.Content
-    new.Description = snippet.Description
-    new.Language = snippet.Language
-    new.CreatedAt = time.Now()
-    new.UpdatedAt = time.Now()
-    
-    return r.db.Create(&new).Error
+    if err := r.db.Model(&Snippet{}).Where("id = ?", snippet.UID).Count(&count).Error; err != nil {
+        return "", err
+    }
+
+    // Fetch the user's username from the User model
+    var user User
+    if err := r.db.Where("id = ?", snippet.UID).First(&user).Error; err != nil {
+        return "", err
+    }
+    id :=  fmt.Sprintf("%s-%d", user.Username, count+1)
+
+    // Create a new snippet instance with ID format (username-snippetcount)
+    newSnippet := Snippet{
+        ID:          id,
+        UserID:      user.ID,   // Set the UserID foreign key
+        Title:       snippet.Title,
+        Content:     snippet.Content,
+        Description: snippet.Description,
+        Language:    snippet.Language,
+        CreatedAt:   time.Now(),
+        UpdatedAt:   time.Now(),
+    }
+    return id, r.db.Create(&newSnippet).Error
+}
+
+func (r *SnippetRepository) FindByUserID(uid uint) ([]Snippet, error) {
+    var snippets []Snippet
+    err := r.db.Where("user_id = ?", uid).Find(&snippets).Error
+    return snippets, err
 }
 
 func (r *SnippetRepository) FindAll() ([]Snippet, error) {
@@ -60,12 +78,12 @@ func (r *SnippetRepository) FindAll() ([]Snippet, error) {
 
 func (r *SnippetRepository) FindByID(id string) (*Snippet, error) {
     var snippet Snippet
-    err := r.db.First(&snippet, id).Error
+    err := r.db.Where("id = ?", id).First(&snippet).Error
     return &snippet, err
 }
 func (r *SnippetRepository) Update(id string, snippet *CreateSnippetRequest) error {
     var existingSnippet Snippet
-    if err := r.db.First(&existingSnippet, id).Error; err != nil {
+    if err := r.db.Where("id = ?", id).First(&existingSnippet).Error; err != nil {
         return err
     }
 

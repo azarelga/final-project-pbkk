@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var dbInstance *gorm.DB
@@ -27,7 +28,9 @@ func setupSQLite() (*gorm.DB, error) {
 		}
 	}
 
-	db, err := gorm.Open(sqlite.Open(dbLocation), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dbLocation), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	return db, err
 }
 

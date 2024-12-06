@@ -68,8 +68,8 @@ func Login(c *gin.Context) {
 	}
 
 	var userFound repositories.User
-	database.GetDB().Where("username=?", authInput.Username).Find(&userFound)
-	log.Println(userFound)
+	database.GetDB().Where("username = ?", authInput.Username).First(&userFound)
+	log.Println("authInput.Username:", authInput.Username)
 	if userFound.ID == 0 {
         c.HTML(http.StatusOK, "login.html", gin.H{"Error": "Invalid username or password"})
 		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid username or password"})
@@ -82,6 +82,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	log.Println("userFound.id:", userFound.ID)
 	generateToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  userFound.ID,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),

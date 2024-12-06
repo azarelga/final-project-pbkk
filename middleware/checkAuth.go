@@ -15,7 +15,7 @@ func CheckAuth(c *gin.Context) {
     }
 
     // Get token from cookie instead of header
-    token, err := c.Cookie("token")
+    token, err := c.Cookie("Authorization")
     if err != nil {
         c.Redirect(http.StatusSeeOther, "/login")
         c.Abort()
@@ -38,7 +38,7 @@ func CheckAuth(c *gin.Context) {
 }
 
 func JwtClaims(c *gin.Context) jwt.MapClaims {
-    token, err := c.Cookie("token")
+    token, err := c.Cookie("Authorization")
     if err != nil {
         c.Redirect(http.StatusSeeOther, "/login")
         c.Abort()

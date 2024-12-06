@@ -17,21 +17,17 @@
       class="bg-gray-100 p-4 rounded overflow-x-auto"
     ><code>{{.Code}}</code></pre>
   </div>
+  {{if .IsOwner}}
   <div class="flex space-x-4">
-    <a
-      href="/snippets/{{.ID}}/edit"
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    >
+    <a href="/snippets/{{.ID}}/edit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
       Edit Snippet
     </a>
     <form action="/snippets/{{.ID}}/delete" method="POST" class="inline">
-      <button
-        type="submit"
-        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-      >
+      <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
         Delete Snippet
       </button>
     </form>
   </div>
+  {{end}}
 </div>
 {{template "footer.html" .}}

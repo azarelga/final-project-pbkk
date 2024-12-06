@@ -52,7 +52,7 @@ func main() {
     // Auth routes
     auth := router.Group("/")
     {
-        auth.GET("", middleware.CheckAuth, handlers.Home)
+        auth.GET("", handlers.Home)
         auth.GET("/login", handlers.Login)
         auth.GET("/logout", handlers.Logout)
         auth.GET("/register", handlers.CreateUser)
@@ -67,8 +67,10 @@ func main() {
         v1.GET("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
         v1.POST("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
         v1.GET("/:id", snippetHandler.GetSnippetByID)
-        v1.PUT("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
-        v1.DELETE("/:id/delete", middleware.CheckAuth,snippetHandler.DeleteSnippet)
+        v1.GET("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
+        v1.POST("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
+        v1.DELETE("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
+        v1.GET("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
     }
 
     // start server
