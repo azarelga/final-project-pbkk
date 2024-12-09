@@ -57,7 +57,7 @@ func (h *SnippetHandler) CreateSnippet(c *gin.Context) {
     c.Redirect(http.StatusSeeOther, fmt.Sprintf("/snippets/%s", snippetID))
 }
 
-func (h *SnippetHandler) GetAllSnippets(c *gin.Context) {
+func (h *SnippetHandler) GetSnippetsByUserID(c *gin.Context) {
     claims := middleware.JwtClaims(c)
     idFloat, ok := claims["id"].(float64)
     if !ok {
@@ -69,6 +69,19 @@ func (h *SnippetHandler) GetAllSnippets(c *gin.Context) {
     uid := uint(idFloat)
 
     snippets, err := h.service.GetSnippetsByUserID(uid)
+    if err != nil {
+        c.HTML(http.StatusInternalServerError, "list.html", gin.H{
+            "Error": err.Error(),
+        })
+        return
+    }
+    c.HTML(http.StatusOK, "list.html", gin.H{
+        "snippets": snippets,
+    })
+}
+
+func (h *SnippetHandler) GetAllSnippets(c *gin.Context) {
+    snippets, err := h.service.GetAllSnippets()
     if err != nil {
         c.HTML(http.StatusInternalServerError, "list.html", gin.H{
             "Error": err.Error(),
