@@ -65,14 +65,14 @@ func (r *SnippetRepository) Create(snippet *CreateSnippetRequest) (string, error
 
 func (r *SnippetRepository) FindByUserID(uid uint) ([]Snippet, error) {
     var snippets []Snippet
-    err := r.db.Where("user_id = ?", uid).Find(&snippets).Error
+    err := r.db.Preload("User").Where("user_id = ?", uid).Find(&snippets).Error
     return snippets, err
 }
 
 func (r *SnippetRepository) FindAll() ([]Snippet, error) {
     var snippets []Snippet
     log.Println(r.db)
-    err := r.db.Find(&snippets).Error
+    err := r.db.Preload("User").Find(&snippets).Error
     return snippets, err
 }
 
