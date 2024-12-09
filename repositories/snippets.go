@@ -1,7 +1,6 @@
 package repositories
 
 import (
-    "log"
     "fmt"
     "gorm.io/gorm"
 	"time"
@@ -38,7 +37,7 @@ func NewSnippetRepository(db *gorm.DB) *SnippetRepository {
 func (r *SnippetRepository) Create(snippet *CreateSnippetRequest) (string, error) {
     // Get count of user's snippets to generate ID
     var count int64
-    if err := r.db.Model(&Snippet{}).Where("id = ?", snippet.UID).Count(&count).Error; err != nil {
+    if err := r.db.Model(&Snippet{}).Where("user_id = ?", snippet.UID).Count(&count).Error; err != nil {
         return "", err
     }
 
@@ -63,16 +62,15 @@ func (r *SnippetRepository) Create(snippet *CreateSnippetRequest) (string, error
     return id, r.db.Create(&newSnippet).Error
 }
 
-func (r *SnippetRepository) FindByUserID(uid uint) ([]Snippet, error) {
+func (r *SnippetRepository) FindByLanguage(language string) ([]Snippet, error) {
     var snippets []Snippet
-    err := r.db.Preload("User").Where("user_id = ?", uid).Find(&snippets).Error
+    err := r.db.Where("language = ?", language).Preload("User").Find(&snippets).Error
     return snippets, err
 }
 
-func (r *SnippetRepository) FindAll() ([]Snippet, error) {
+func (r *SnippetRepository) FindByUserID(uid uint) ([]Snippet, error) {
     var snippets []Snippet
-    log.Println(r.db)
-    err := r.db.Preload("User").Find(&snippets).Error
+    err := r.db.Preload("User").Where("user_id = ?", uid).Find(&snippets).Error
     return snippets, err
 }
 

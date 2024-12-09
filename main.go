@@ -63,8 +63,8 @@ func main() {
     // Snippet routes with AuthMiddleware
     v1 := router.Group("/snippets")
     {
-        v1.GET("", snippetHandler.GetAllSnippets)
-        v1.GET("/mylist", snippetHandler.GetSnippetsByUserID)
+        v1.GET("", snippetHandler.GetSnippetsByLanguage)
+        v1.GET("/listed", snippetHandler.GetSnippetsByUserID)
         v1.GET("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
         v1.POST("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
         v1.GET("/:id", snippetHandler.GetSnippetByID)

@@ -13,6 +13,11 @@ type SnippetHandler struct {
     service *services.SnippetService
 }
 
+type LanguageSnippets struct {
+    Language string                 // The language name (e.g., "Python", "Go").
+    Snippets []repositories.Snippet // The list of snippets for this language.
+}
+
 func NewSnippetHandler(service *services.SnippetService) *SnippetHandler {
     return &SnippetHandler{service: service}
 }
@@ -70,26 +75,30 @@ func (h *SnippetHandler) GetSnippetsByUserID(c *gin.Context) {
 
     snippets, err := h.service.GetSnippetsByUserID(uid)
     if err != nil {
-        c.HTML(http.StatusInternalServerError, "list.html", gin.H{
+        c.HTML(http.StatusInternalServerError, "mylist.html", gin.H{
             "Error": err.Error(),
         })
         return
     }
-    c.HTML(http.StatusOK, "list.html", gin.H{
+    c.HTML(http.StatusOK, "mylist.html", gin.H{
         "snippets": snippets,
     })
 }
 
-func (h *SnippetHandler) GetAllSnippets(c *gin.Context) {
-    snippets, err := h.service.GetAllSnippets()
+func (h *SnippetHandler) GetSnippetsByLanguage(c *gin.Context) {
+    languages := []string{"Python", "Javascript", "Go", "Rust", "Typescript"}
+
+    // Call the service to get the snippets grouped by language
+    groupedSnippets, err := h.service.GetSnippetsByLanguage(languages)
     if err != nil {
-        c.HTML(http.StatusInternalServerError, "list.html", gin.H{
-            "Error": err.Error(),
-        })
+        // Handle error by showing it on the page
+        c.HTML(http.StatusInternalServerError, "list.html", gin.H{"error": err.Error()})
         return
     }
+
+    // Pass the grouped snippets to the template
     c.HTML(http.StatusOK, "list.html", gin.H{
-        "snippets": snippets,
+        "groupedSnippets": groupedSnippets,
     })
 }
 
