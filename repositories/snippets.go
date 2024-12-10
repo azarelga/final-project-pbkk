@@ -68,15 +68,18 @@ func (r *SnippetRepository) FindByLanguage(language string) ([]Snippet, error) {
     return snippets, err
 }
 
-func (r *SnippetRepository) FindByUserID(uid uint) ([]Snippet, error) {
+func (r *SnippetRepository) FindByUsername(username string) ([]Snippet, error) {
     var snippets []Snippet
-    err := r.db.Preload("User").Where("user_id = ?", uid).Find(&snippets).Error
+    err := r.db.
+        Joins("JOIN users ON users.id = snippets.user_id").
+        Where("users.username = ?", username).
+        Find(&snippets).Error
     return snippets, err
 }
 
 func (r *SnippetRepository) FindByID(id string) (*Snippet, error) {
     var snippet Snippet
-    err := r.db.Where("id = ?", id).First(&snippet).Error
+    err := r.db.Where("id = ?", id).Preload("User").First(&snippet).Error
     return &snippet, err
 }
 func (r *SnippetRepository) Update(id string, snippet *CreateSnippetRequest) error {

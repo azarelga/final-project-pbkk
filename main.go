@@ -13,7 +13,6 @@ import (
 )
 
 var db *gorm.DB
-var err error
 
 func init() {
     database.LoadEnvs()
@@ -60,18 +59,22 @@ func main() {
         auth.POST("/register", handlers.CreateUser)
     }
 
-    // Snippet routes with AuthMiddleware
-    v1 := router.Group("/snippets")
+    // Snippet routes
+    snip := router.Group("/snippets")
     {
-        v1.GET("", snippetHandler.GetSnippetsByLanguage)
-        v1.GET("/listed", snippetHandler.GetSnippetsByUserID)
-        v1.GET("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
-        v1.POST("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
-        v1.GET("/:id", snippetHandler.GetSnippetByID)
-        v1.GET("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
-        v1.POST("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
-        v1.POST("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
-        v1.GET("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
+        // Guest routes
+        snip.GET("", snippetHandler.GetSnippetsByLanguage)
+        snip.GET("/user/:username", snippetHandler.GetSnippetsByUsername)
+        snip.GET("/:id", snippetHandler.GetSnippetByID)
+        
+        // Authenticated routes
+        snip.GET("/my", middleware.CheckAuth, snippetHandler.GetSnippetsByUsername)
+        snip.GET("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
+        snip.POST("/new", middleware.CheckAuth,snippetHandler.CreateSnippet)
+        snip.GET("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
+        snip.POST("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
+        snip.POST("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
+        snip.GET("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
     }
 
     // start server

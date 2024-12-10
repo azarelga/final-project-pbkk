@@ -40,8 +40,6 @@ func CheckAuth(c *gin.Context) {
 func JwtClaims(c *gin.Context) jwt.MapClaims {
     token, err := c.Cookie("Authorization")
     if err != nil {
-        c.Redirect(http.StatusSeeOther, "/login")
-        c.Abort()
         return nil
     }
     claims := jwt.MapClaims{}

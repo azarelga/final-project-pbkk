@@ -57,11 +57,11 @@ func (s *SnippetService) GetSnippetsByLanguage(languages []string) ([]LanguageSn
     return groupedSnippets, nil
 }
 
-func (s *SnippetService) GetSnippetsByUserID(uid uint) ([]repositories.Snippet, error) {
+func (s *SnippetService) GetSnippetsByUsername(username string) ([]repositories.Snippet, error) {
     if s.repo == nil {
         return nil, errors.New("repository is nil")
     }
-    return s.repo.FindByUserID(uid)
+    return s.repo.FindByUsername(username)
 }
 
 func (s *SnippetService) DeleteSnippet(id string) error {

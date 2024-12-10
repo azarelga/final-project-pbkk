@@ -85,6 +85,7 @@ func Login(c *gin.Context) {
 	log.Println("userFound.id:", userFound.ID)
 	generateToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  userFound.ID,
+		"username": userFound.Username,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 

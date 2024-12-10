@@ -62,18 +62,29 @@ func (h *SnippetHandler) CreateSnippet(c *gin.Context) {
     c.Redirect(http.StatusSeeOther, fmt.Sprintf("/snippets/%s", snippetID))
 }
 
-func (h *SnippetHandler) GetSnippetsByUserID(c *gin.Context) {
-    claims := middleware.JwtClaims(c)
-    idFloat, ok := claims["id"].(float64)
-    if !ok {
-        c.HTML(http.StatusUnauthorized, "list.html", gin.H{
-            "Error": "Unauthorized",
-        })
-        return
-    }
-    uid := uint(idFloat)
+func (h *SnippetHandler) GetSnippetsByUsername(c *gin.Context) {
+    username := c.Param("username")
 
-    snippets, err := h.service.GetSnippetsByUserID(uid)
+    // If username empty, get username from jwt claims
+    if username == "" {
+        claims := middleware.JwtClaims(c)
+        if claims == nil {
+            c.HTML(http.StatusUnauthorized, "mylist.html", gin.H{
+                "Error": "Unauthorized",
+            })
+            return
+        }
+        if usernameClaim, ok := claims["username"].(string); ok {
+            username = usernameClaim
+        } else {
+            c.HTML(http.StatusUnauthorized, "mylist.html", gin.H{
+                "Error": "Unauthorized",
+            })
+            return
+        }
+    }
+
+    snippets, err := h.service.GetSnippetsByUsername(username)
     if err != nil {
         c.HTML(http.StatusInternalServerError, "mylist.html", gin.H{
             "Error": err.Error(),
@@ -126,6 +137,7 @@ func (h *SnippetHandler) GetSnippetByID(c *gin.Context) {
     }
     c.HTML(http.StatusOK, "viewsnippet.html", gin.H{
         "Title": snippet.Title,
+        "Username": snippet.User.Username,
         "Language": snippet.Language,
         "Description": snippet.Description,
         "Code": snippet.Content,
