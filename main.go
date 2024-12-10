@@ -70,7 +70,7 @@ func main() {
         v1.GET("/:id", snippetHandler.GetSnippetByID)
         v1.GET("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
         v1.POST("/:id/edit",middleware.CheckAuth, snippetHandler.UpdateSnippet)
-        v1.DELETE("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
+        v1.POST("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
         v1.GET("/:id/delete", middleware.CheckAuth, snippetHandler.DeleteSnippet)
     }
 

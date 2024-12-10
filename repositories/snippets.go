@@ -95,5 +95,5 @@ func (r *SnippetRepository) Update(id string, snippet *CreateSnippetRequest) err
 }
 
 func (r *SnippetRepository) Delete(id string) error {
-    return r.db.Delete(&Snippet{}, id).Error
+    return r.db.Where("id = ?", id).Delete(&Snippet{}).Error
 }

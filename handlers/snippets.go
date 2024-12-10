@@ -210,7 +210,7 @@ func (h *SnippetHandler) DeleteSnippet(c *gin.Context) {
     if c.Request.Method == http.MethodGet {
         snippet, err := h.service.GetSnippetByID(id)
         if err != nil {
-            c.HTML(http.StatusInternalServerError, "delete.html", gin.H{
+            c.HTML(http.StatusInternalServerError, "mylist.html", gin.H{
                 "Error": err.Error(),
             })
             return
@@ -226,29 +226,24 @@ func (h *SnippetHandler) DeleteSnippet(c *gin.Context) {
         if idFloat, ok := claims["id"].(float64); ok {
             currentUserID := uint(idFloat)
             if currentUserID != snippet.UserID {
-                c.HTML(http.StatusForbidden, "delete.html", gin.H{
+                c.HTML(http.StatusForbidden, "mylist.html", gin.H{
                     "Error": "Not authorized to delete this snippet",
                 })
                 return
             }
         }
 
-        c.HTML(http.StatusOK, "delete.html", gin.H{
-            "ID":          snippet.ID,
-            "Title":       snippet.Title,
-            "Description": snippet.Description,
-            "Language":    snippet.Language,
-        })
+        c.Redirect(http.StatusOK, "/snippets/listed")
         return
     }
 
     // Handle DELETE request
     if err := h.service.DeleteSnippet(id); err != nil {
-        c.HTML(http.StatusInternalServerError, "delete.html", gin.H{
+        c.HTML(http.StatusInternalServerError, "mylist.html", gin.H{
             "Error": err.Error(),
         })
         return
     }
 
-    c.Redirect(http.StatusSeeOther, "/snippets")
+    c.Redirect(http.StatusSeeOther, "/snippets/listed")
 }
