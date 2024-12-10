@@ -2,19 +2,20 @@
 
 ## Overview
 
-This is a web application built with Go that allows users to create, read, update, and delete code snippets. The application features user authentication, secure password storage, and a clean, responsive interface.
+This web application, built with Go, allows users to create, read, update, and delete code snippets. It features user authentication, secure password storage, and a responsive interface designed with Tailwind CSS.
 
 ## Features
 
-- User Registration and Authentication
-- Create, Read, Update, and Delete (CRUD) Code Snippets
-- Secure Password Hashing
-- Session-based Authentication
-- Responsive Design with Tailwind CSS
+- User Registration and Authentication 
+- Create, Read, Update, and Delete (CRUD) Operations for Code Snippets
+- Secure Password Hashing with bcrypt
+- Session Management with JWT Tokens
+- Responsive Design Using Tailwind CSS
+
 
 ## Prerequisites
 
-- Go (version 1.16 or later)
+- Go (version 1.23 or later)
 - Git
 - SQLite3
 
@@ -67,40 +68,66 @@ go build -o code-snippets
 ## Project Structure
 
 ```
-code-snippet-sharing/
-│
-├── main.go               # Main application logic
-├── .env                  # Environment configuration
-├── go.mod                # Go module dependencies
-│
-├── templates/            # HTML templates
-│   ├── base.html
+.
+├── main.go                # Main application entry point
+├── .env                   # Environment configuration
+├── go.mod                 # Go module dependencies
+├── go.sum                 # Go module checksums
+├── handlers/              # HTTP request handlers
+│   ├── auth.go
+│   └── snippets.go
+├── repositories/          # Database access layers
+│   ├── user.go
+│   └── snippets.go
+├── services/              # Business logic
+│   ├── user.go
+│   └── snippets.go
+├── middleware/            # Middleware functions
+│   └── checkAuth.go
+├── database/              # Database initialization and migrations
+│   ├── db.go
+│   ├── migrate.go
+│   └── loadenvs.go
+├── templates/             # HTML templates
+│   ├── header.html
+│   ├── footer.html
 │   ├── home.html
 │   ├── login.html
 │   ├── register.html
 │   ├── list.html
+│   ├── mylist.html
 │   ├── create.html
-│   ├── view.html
-│   └── edit.html
-│
-└── snippets.db           # SQLite database (auto-created)
+│   ├── edit.html
+│   └── viewsnippet.html
+├── .gitignore             # Git ignore file
+├── README.md              # Project documentation
+└── snippets.db            # SQLite database (generated at runtime)
 ```
+## CRUD Implementation
+The application implements CRUD (Create, Read, Update, Delete) operations for code snippets:
+
+- **Create**: Users can create new code snippets using the `CreateSnippet` handler in `snippets.go`. The HTML form for creating snippets is in `create.html`.
+
+- **Read**: Users can read existing snippets through several handlers in `snippets.go`:
+  - `GetSnippetsByLanguage` retrieves snippets filtered by language.
+  - `GetSnippetsByUserID` lists snippets created by the current user.
+  - `GetSnippetByID` displays detailed information about a specific snippet.
+- **Update**: Users can update their snippets using the `UpdateSnippet` handler in `snippets.go`. The edit form is provided in `edit.html`.
+
+- **Delete**: Users can delete their snippets using the `DeleteSnippet` handler in `snippets.go`.
+
+These handlers interact with the `SnippetService` in `snippets.go`, which uses the `SnippetRepository` in `snippets.go` for database operations. Authentication and authorization are managed by middleware in `checkAuth.go` to ensure that only authorized users can perform these actions.
 
 ## Security Considerations
 
-- Passwords are hashed using bcrypt
-- Sessions are managed securely
-- Authentication middleware protects routes
-- SQLite database is used for lightweight, file-based storage
+- Password Hashing: User passwords are securely hashed using bcrypt.
+- Session Management: Authentication is managed with JWT tokens stored in cookies.
+- Protected Routes: Middleware ensures that certain routes are only accessible to authenticated users.
 
 ## Customization
 
 ### Changing the Database
-
-- The application uses SQLite by default
-- To use a different database, modify the database initialization in `main.go`
+By default, the application uses SQLite. To switch to a different database (e.g., MySQL or PostgreSQL), update the database configuration in db.go and adjust the GORM dialect accordingly.
 
 ### Styling
-
-- Tailwind CSS is used for styling
-- Modify templates to customize the look and feel
+The application uses Tailwind CSS for styling. You can customize the styles by modifying the HTML templates in the templates directory.
