@@ -131,3 +131,6 @@ By default, the application uses SQLite. To switch to a different database (e.g.
 
 ### Styling
 The application uses Tailwind CSS for styling. You can customize the styles by modifying the HTML templates in the templates directory.
+
+## Demo Project
+https://youtu.be/3ma7tgqgtKg
