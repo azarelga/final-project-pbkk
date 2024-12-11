@@ -73,6 +73,7 @@ func (r *SnippetRepository) FindByUsername(username string) ([]Snippet, error) {
     err := r.db.
         Joins("JOIN users ON users.id = snippets.user_id").
         Where("users.username = ?", username).
+        Preload("User").
         Find(&snippets).Error
     return snippets, err
 }
